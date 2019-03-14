@@ -97,6 +97,9 @@ def read_data_generated_irr(file):
 	y_train = np.asarray(data[0]['class'])
 	#print(np.unique(y_train))
 	X_train, y_train = shuffle(X_train, y_train, random_state=42)
+#	for i in y_train:
+#		if i != None:
+#			print(i)
 	y_train = change_classes(y_train)
 	y_train = to_categorical(y_train)
 
@@ -122,7 +125,9 @@ def read_data_generated_irr(file):
 
 
 def change_classes(targets):
+	#print(targets)
 	target_keys = np.unique(targets)
+	#print(target_keys)
 	target_keys_idxs = np.argsort(np.unique(targets))
 	targets = target_keys_idxs[np.searchsorted(target_keys, targets, sorter=target_keys_idxs)]
 
@@ -188,7 +193,7 @@ def evaluation(X_test, y_test, n_classes):
 
 
 date = '1303'
-folder = 'starlight_amp_noisy_irregular_all'
+folder = 'catalina_amp_irregular_16_9classes'
 
 if os.path.isfile('TSTR_'+ date +'/train/'+ folder +'/trainonsynthetic_model.h5'):
 
@@ -225,7 +230,7 @@ if os.path.isfile('TSTR_'+ date +'/train/'+ folder +'/trainonsynthetic_model.h5'
 else:
 
 	irr = True
-	dataset_syn = 'starlight_amp_noisy_irregular_all_generated'
+	dataset_syn = 'catalina_amp_irregular_16_9classes_generated'
 	one_d = False
 
 ## Train on synthetic
@@ -242,7 +247,7 @@ else:
 	batch_size = 512
 	epochs = 500
 
-	num_classes = 3
+	num_classes = 9
 
 	m = Model_(batch_size, 100, num_classes)
 
@@ -334,9 +339,9 @@ else:
 	print('\nTest metrics:')
 
 	# Load dataset
-	dataset_real = 'starlight_noisy_irregular_all_classes'
+	dataset_real = 'catalina_random_full_north_9classes'
 	if irr == True:
-		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_original_irr('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pkl')
+		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_original_irr('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pickle')
 	else:
 		X_train, y_train, X_val, y_val, X_test, y_test  = read_data('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pkl')
 

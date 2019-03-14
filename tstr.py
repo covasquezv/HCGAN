@@ -42,26 +42,27 @@ def read_data(file):
 
 	return X_train, y_train, X_val, y_val, X_test, y_test
 
-def read_data_irr(file):
+def read_data_original_irr(file):
 
 	with open(file, 'rb') as f: data = pickle.load(f)
 
-	#print(data[0].keys())
+	print(data[0].keys())
 
-	mgt = np.asarray(data[0]['original_magnitude_random'])
-	t = np.asarray(data[0]['time_random'])
+	mgt = np.asarray(data[0]['original_magnitude'])
+	t = np.asarray(data[0]['time'])
 	X_train = np.stack((mgt, t), axis=-1)
 	#print(X_train.shape)
 	#print(X_train.T.shape)
 	X_train =  X_train.reshape(X_train.shape[0], X_train.shape[1], 1, X_train.shape[2])
-	print(X_train.shape)
+	#print(X_train.shape)
 	y_train = np.asarray(data[0]['class'])
+	#print(np.unique(y_train))
 	X_train, y_train = shuffle(X_train, y_train, random_state=42)
 	y_train = change_classes(y_train)
 	y_train = to_categorical(y_train)
 
-	mgt = np.asarray(data[1]['original_magnitude_random'])
-	t = np.asarray(data[1]['time_random'])
+	mgt = np.asarray(data[1]['original_magnitude'])
+	t = np.asarray(data[1]['time'])
 	X_val = np.stack((mgt, t), axis=-1)
 	X_val =  X_val.reshape(X_val.shape[0], X_val.shape[1], 1, X_val.shape[2])
 	y_val = np.asarray(data[1]['class'])
@@ -69,8 +70,47 @@ def read_data_irr(file):
 	y_val = to_categorical(y_val)
 	X_val, y_val = shuffle(X_val, y_val, random_state=42)
 
-	mgt = np.asarray(data[2]['original_magnitude_random'])
-	t = np.asarray(data[2]['time_random'])
+	mgt = np.asarray(data[2]['original_magnitude'])
+	t = np.asarray(data[2]['time'])
+	X_test = np.stack((mgt, t), axis=-1)
+	X_test =  X_test.reshape(X_test.shape[0], X_test.shape[1], 1, X_test.shape[2])
+	y_test = np.asarray(data[2]['class'])
+	y_test = change_classes(y_test)
+	y_test = to_categorical(y_test)
+	X_test, y_test = shuffle(X_test, y_test, random_state=42)
+
+	return X_train, y_train, X_val, y_val, X_test, y_test
+
+def read_data_generated_irr(file):
+
+	with open(file, 'rb') as f: data = pickle.load(f)
+
+	print(data[0].keys())
+
+	mgt = np.asarray(data[0]['generated_magnitude'])
+	t = np.asarray(data[0]['time'])
+	X_train = np.stack((mgt, t), axis=-1)
+	#print(X_train.shape)
+	#print(X_train.T.shape)
+	X_train =  X_train.reshape(X_train.shape[0], X_train.shape[1], 1, X_train.shape[2])
+	#print(X_train.shape)
+	y_train = np.asarray(data[0]['class'])
+	#print(np.unique(y_train))
+	X_train, y_train = shuffle(X_train, y_train, random_state=42)
+	y_train = change_classes(y_train)
+	y_train = to_categorical(y_train)
+
+	mgt = np.asarray(data[1]['generated_magnitude'])
+	t = np.asarray(data[1]['time'])
+	X_val = np.stack((mgt, t), axis=-1)
+	X_val =  X_val.reshape(X_val.shape[0], X_val.shape[1], 1, X_val.shape[2])
+	y_val = np.asarray(data[1]['class'])
+	y_val = change_classes(y_val)
+	y_val = to_categorical(y_val)
+	X_val, y_val = shuffle(X_val, y_val, random_state=42)
+
+	mgt = np.asarray(data[2]['generated_magnitude'])
+	t = np.asarray(data[2]['time'])
 	X_test = np.stack((mgt, t), axis=-1)
 	X_test =  X_test.reshape(X_test.shape[0], X_test.shape[1], 1, X_test.shape[2])
 	y_test = np.asarray(data[2]['class'])
@@ -148,7 +188,7 @@ def evaluation(X_test, y_test, n_classes):
 
 
 date = '1303'
-folder = 'catalina_amp_irregular'
+folder = 'starlight_amp_noisy_irregular_all'
 
 if os.path.isfile('TSTR_'+ date +'/train/'+ folder +'/trainonsynthetic_model.h5'):
 
@@ -185,13 +225,13 @@ if os.path.isfile('TSTR_'+ date +'/train/'+ folder +'/trainonsynthetic_model.h5'
 else:
 
 	irr = True
-	dataset_syn = 'catalina_amp_irregular_generated'
+	dataset_syn = 'starlight_amp_noisy_irregular_all_generated'
 	one_d = False
 
 ## Train on synthetic
 
 	if irr == True:
-		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_irr('TSTR_'+ date +'/TSTR_data/generated/'+ folder +'/' + dataset_syn + '.pkl')
+		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_generated_irr('TSTR_'+ date +'/TSTR_data/generated/'+ folder +'/' + dataset_syn + '.pkl')
 	else:
 		X_train, y_train, X_val, y_val, X_test, y_test  = read_data('TSTR_'+ date +'/TSTR_data/generated/'+ folder + '/' + dataset_syn + '.pkl')
 
@@ -202,7 +242,7 @@ else:
 	batch_size = 512
 	epochs = 500
 
-	num_classes = 2
+	num_classes = 3
 
 	m = Model_(batch_size, 100, num_classes)
 
@@ -294,13 +334,13 @@ else:
 	print('\nTest metrics:')
 
 	# Load dataset
-	dataset_real = 'catalina_random'
+	dataset_real = 'starlight_noisy_irregular_all_classes'
 	if irr == True:
-		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_irr('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pickle')
+		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_original_irr('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pkl')
 	else:
 		X_train, y_train, X_val, y_val, X_test, y_test  = read_data('TSTR_'+ date +'/TSTR_data/datasets_original/REAL/'+ dataset_real +'.pkl')
 
-	sc, me, st = evaluation(X_test, y_test, 2)
+	sc, me, st = evaluation(X_test, y_test, num_classes)
 	np.save('TSTR_'+ date +'/test/'+ dataset_real +'/testonreal_is.npy', sc)
 	np.save('TSTR_'+ date +'/test/'+ dataset_real +'/testonreal_is_mean.npy', me)
 	np.save('TSTR_'+ date +'/test/'+ dataset_real +'/testonreal_is_std.npy', st)

@@ -346,26 +346,45 @@ else:
 	## Test on synthetic
 
 	print('\nTest metrics:')
+	print('\nTest on real')
 
 	dataset_syn = 'starlight_amp_noisy_irregular_all_generated'
 
 	if irr == True:
-		X_train, y_train, X_val, y_val, X_test, y_test  = read_data_generated_irr('TSTR_data/generated/'+ folder +'/' + dataset_syn + '.pkl')
+		X_train2, y_train2, X_val2, y_val2, X_test2, y_test2  = read_data_generated_irr('TSTR_data/generated/'+ folder +'/' + dataset_syn + '.pkl')
 	else:
-		X_train, y_train, X_val, y_val, X_test, y_test  = read_data('TSTR_data/generated/'+ folder + '/' + dataset_syn + '.pkl')
+		X_train2, y_train2, X_val2, y_val2, X_test2, y_test2  = read_data('TSTR_data/generated/'+ folder + '/' + dataset_syn + '.pkl')
 
 	sc, me, st = evaluation(X_test, y_test, num_classes)
-	np.save('TRTS_'+ date +'/test/'+ folder +'/test_is.npy', sc)
-	np.save('TRTS_'+ date +'/test/'+ folder +'/test_is_mean.npy', me)
-	np.save('TRTS_'+ date +'/test/'+ folder +'/test_is_std.npy', st)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onreal_is.npy', sc)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onreal_is_mean.npy', me)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onreal_is_std.npy', st)
 
 	score = model.evaluate(X_test, y_test, verbose=1)
 	print('Test loss:', score[0])
 	print('Test accuracy:', score[1])
 
-	np.save('TRTS_'+ date +'/test/'+ folder +'/test_score.npy', score)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onreal_score.npy', score)
 
 	y_pred = model.predict(X_test)
 	roc = roc_auc_score(y_test, y_pred)
 	print('auc roc', roc)
-	np.save('TRTS_'+ date +'/test/'+ folder +'/test_rocauc.npy', roc)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onreal_rocauc.npy', roc)
+
+	print('\nTest on synthetic:')
+
+	sc, me, st = evaluation(X_test2, y_test2, num_classes)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onsyn_is.npy', sc)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onsyn_is_mean.npy', me)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onsyn_is_std.npy', st)
+
+	score = model.evaluate(X_test2, y_test2, verbose=1)
+	print('Test loss:', score[0])
+	print('Test accuracy:', score[1])
+
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onsyn_score.npy', score)
+
+	y_pred = model.predict(X_test2)
+	roc = roc_auc_score(y_test2, y_pred)
+	print('auc roc', roc)
+	np.save('TRTS_'+ date +'/test/'+ folder +'/test_onsyn_rocauc.npy', roc)

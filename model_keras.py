@@ -1,4 +1,4 @@
-from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Dropout, Flatten
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Dropout, Flatten, LSTM, Bidirectional, TimeDistributed
 from keras.models import Model
 from keras.models import Sequential
 
@@ -76,4 +76,24 @@ class Model_():
 
 		print(model.summary())
 
+		return model
+
+	def bi_lstm(self):
+		model = Sequential()
+		model.add(Bidirectional(LSTM(100, return_sequences=True), input_shape=(self.length, 2)))
+		model.add(Dropout(0.2))
+		model.add(Bidirectional(LSTM(100, return_sequences=True)))
+		model.add(Dropout(0.2))
+		model.add(Flatten())
+		model.add(Dense(output_dim=self.num_classes, activation='softmax'))
+
+		return model
+
+	def lstm(self):
+		model = Sequential()
+		model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2, return_sequences=True, input_shape=(self.length, 2)))
+		model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2, return_sequences=True))
+		#model.add(Dropout(0.2))
+		model.add(Flatten())
+		model.add(Dense(output_dim=self.num_classes, activation='softmax'))
 		return model
